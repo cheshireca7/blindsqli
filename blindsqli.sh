@@ -88,4 +88,4 @@ done
 wait
 exfiltrate=$(sort -g $(pwd)/blindsqli.txt | awk '{print $2}' | xargs | sed 's/ //g')
 rm $(pwd)/blindsqli.txt
-echo -e "\n$greenColour[+] Here's your exifltrated string: $endColour$exfiltrate"
+echo -e "\n$greenColour[+] Here's your exifiltrated string: $endColour$exfiltrate"
