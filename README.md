@@ -1,2 +1,13 @@
+**DISCLAIMER**: I AM NOT RESPONSIBLE OF THE MISUSE OF THIS TOOL. YOU RUN IT AT YOUR OWN RISK. Before running it, make sure you are in a controlled environment, and where you are allowed to perform this kind of exercise. PLEASE BE KIND :)
+
 # blindsqli
-Here is a very simple script to for booleand blind SQLi exploitation
+A really simple script for boolean-blind SQLi exploitation of vulnerable GET parameters
+
+## Usage
+  Syntax: `./blindsqli.sh 'http[s]://<URL>?<vulnparam>=<paramvalue>' '<SQL query>' '<String which appears when TRUE condition>'`
+  
+  Example: `./blindsqli.sh 'http://vulnerable.site/sqli.php?id=1234' 'SELECT concat(username,":",password) FROM awd.accounts LIMIT 1,1' 'JohnDoe'"`
+    
+## TODOs
+  - [ ] Target POST parameters.
+  - [ ] Optimization.
