@@ -14,7 +14,7 @@ length=""
 commando="$2"
 url=$1
 string=$3
-sessionCookie='PHPSESSID=n2csm9glugacbkadlrtikpgr16; security=low' # PUT YOUR SESSION COOKIE HERE IF NEEDED
+sessionCookie='' # PUT YOUR SESSION COOKIE HERE IF NEEDED
 
 if [[ -z $url || -z $commando || -z $string ]];then
   echo -e "\n$yellowColour[!] Usage: $0 'http://vulnerable.site/sqli.php?id=1234' 'SELECT password FROM awd.accounts LIMIT 1' 'String which appears when TRUE condition'"
