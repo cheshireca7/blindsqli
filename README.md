@@ -3,6 +3,8 @@
 # blindsqli
 A really simple script for boolean-blind SQLi exploitation of vulnerable GET parameters
 
+![alt text](https://github.com/chesire-cat/blindsqli/blob/main/images/blindsqli.png?raw=true)
+
 ## Usage
   Syntax: `./blindsqli.sh 'http[s]://<URL>?<vulnparam>=<paramvalue>' '<SQL query>' '<String which appears when TRUE condition>'`
   
